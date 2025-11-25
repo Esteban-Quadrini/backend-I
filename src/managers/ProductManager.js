@@ -32,7 +32,17 @@ class ProductManager {
     if (!product.title || product.price === undefined) throw new Error('title and price required');
     const items = await this._read();
     const id = Date.now().toString();
-    const newProduct = { id, status: true, thumbnails: [], ...product };
+    const newProduct = {
+      id,
+      title: product.title,
+      description: product.description || '',
+      code: product.code || '',
+      price: product.price,
+      status: product.status !== undefined ? product.status : true,
+      stock: product.stock !== undefined ? product.stock : 0,
+      category: product.category || '',
+      thumbnails: Array.isArray(product.thumbnails) ? product.thumbnails : []
+    };
     items.push(newProduct);
     await this._write(items);
     return newProduct;
@@ -42,7 +52,8 @@ class ProductManager {
     const items = await this._read();
     const idx = items.findIndex(p => p.id === String(id));
     if (idx === -1) return null;
-    items[idx] = { ...items[idx], ...changes, id: items[idx].id };
+    const preservedId = items[idx].id;
+    items[idx] = { ...items[idx], ...changes, id: preservedId };
     await this._write(items);
     return items[idx];
   }
