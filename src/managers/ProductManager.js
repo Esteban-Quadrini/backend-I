@@ -1,70 +1,46 @@
-const fs = require('fs').promises;
-const path = require('path');
+
+const fs = require('fs');
 
 class ProductManager {
-  constructor(filePath) {
-    this.path = path.resolve(filePath);
+  constructor(path) {
+    this.path = path;
   }
 
-  async _read() {
+  async getAll() {
     try {
-      const data = await fs.readFile(this.path, 'utf8');
-      return JSON.parse(data || '[]');
-    } catch {
+      const data = await fs.promises.readFile(this.path, 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
       return [];
     }
   }
 
-  async _write(data) {
-    await fs.writeFile(this.path, JSON.stringify(data, null, 2));
-  }
-
-  async getAll() {
-    return await this._read();
-  }
-
-  async getById(id) {
-    const items = await this._read();
-    return items.find(p => p.id === String(id));
+  async saveAll(products) {
+    await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
   }
 
   async add(product) {
-    if (!product.title || product.price === undefined) throw new Error('title and price required');
-    const items = await this._read();
-    const id = Date.now().toString();
+    const products = await this.getAll();
+
+    // Generar ID único
+    const newId = products.length > 0 
+      ? (parseInt(products[products.length - 1].id) + 1).toString()
+      : "1001";
+
     const newProduct = {
-      id,
-      title: product.title,
-      description: product.description || '',
-      code: product.code || '',
-      price: product.price,
-      status: product.status !== undefined ? product.status : true,
-      stock: product.stock !== undefined ? product.stock : 0,
-      category: product.category || '',
-      thumbnails: Array.isArray(product.thumbnails) ? product.thumbnails : []
+      id: newId,
+      ...product
     };
-    items.push(newProduct);
-    await this._write(items);
+
+    products.push(newProduct);
+    await this.saveAll(products);
     return newProduct;
   }
 
-  async update(id, changes) {
-    const items = await this._read();
-    const idx = items.findIndex(p => p.id === String(id));
-    if (idx === -1) return null;
-    const preservedId = items[idx].id;
-    items[idx] = { ...items[idx], ...changes, id: preservedId };
-    await this._write(items);
-    return items[idx];
-  }
-
-  async delete(id) {
-    const items = await this._read();
-    const idx = items.findIndex(p => p.id === String(id));
-    if (idx === -1) return false;
-    items.splice(idx, 1);
-    await this._write(items);
-    return true;
+  async delete(pid) {
+    let products = await this.getAll();
+    products = products.filter(p => p.id !== pid);
+    await this.saveAll(products);
   }
 }
 

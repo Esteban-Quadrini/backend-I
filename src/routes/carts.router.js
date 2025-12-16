@@ -5,7 +5,7 @@ const router = express.Router();
 const cm = new CartManager('src/data/carts.json');
 const pm = new ProductManager('src/data/products.json');
 
-// Crear carrito vacío
+
 router.post('/', async (req, res) => {
   try {
     const cart = await cm.createCart();
@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Obtener carrito por id
+
 router.get('/:cid', async (req, res) => {
   try {
     const cart = await cm.getById(req.params.cid);
@@ -26,7 +26,7 @@ router.get('/:cid', async (req, res) => {
   }
 });
 
-// Agregar producto al carrito (incrementa quantity si ya existe)
+
 router.post('/:cid/product/:pid', async (req, res) => {
   try {
     const { cid, pid } = req.params;

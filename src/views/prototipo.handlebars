@@ -1,0 +1,19 @@
+{{!-- src/views/prototipo.handlebars --}}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+</head>
+<body>
+  <h1>Página de prototipo</h1>
+  <p>Esta es una vista de prueba para verificar que Handlebars y el layout funcionan correctamente.</p>
+
+  <h2>Datos de ejemplo</h2>
+  <ul>
+    {{#each items}}
+      <li>{{this}}</li>
+    {{/each}}
+  </ul>
+</body>
+</html>
