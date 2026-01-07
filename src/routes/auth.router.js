@@ -7,7 +7,6 @@ const path = require('path');
 
 const USERS_FILE = path.resolve('src/data/users.json');
 
-
 async function readUsers() {
   try {
     const data = await fs.readFile(USERS_FILE, 'utf8');
@@ -18,9 +17,9 @@ async function readUsers() {
 }
 
 async function writeUsers(users) {
+  await fs.mkdir(path.dirname(USERS_FILE), { recursive: true });
   await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
 }
-
 
 router.post('/register', async (req, res) => {
   try {
@@ -40,7 +39,6 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 router.post('/login', async (req, res) => {
   try {

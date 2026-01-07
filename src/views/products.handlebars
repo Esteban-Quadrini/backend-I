@@ -1,0 +1,98 @@
+
+<div style="margin-bottom:16px;">
+  <form id="createProductForm" style="display:flex; gap:8px; flex-wrap:wrap;">
+    <input name="title" placeholder="Título" required>
+    <input name="code" placeholder="Código" required>
+    <input name="price" type="number" placeholder="Precio" required>
+    <input name="category" placeholder="Categoría">
+    <input name="stock" type="number" placeholder="Stock">
+    <button type="submit" class="btn">Crear producto</button>
+  </form>
+
+  <form id="searchForm" style="margin-top:8px; display:flex; gap:8px;">
+    <input name="q" id="q" placeholder="Buscar por título, categoría o código">
+    <button type="submit" class="btn">Buscar</button>
+    <button id="clearSearch" type="button" class="btn" style="background:#666">Limpiar</button>
+  </form>
+</div>
+
+<ul class="product-list" id="productList">
+  {{#each products}}
+    <li class="card" data-id="{{this._id}}">
+      <h3>{{this.title}}</h3>
+      <p>{{this.description}}</p>
+      <p><strong>$ {{this.price}}</strong> • {{this.category}}</p>
+      <div style="margin-top:8px;">
+        <button data-id="{{this._id}}" class="btn addBtn">Agregar al carrito</button>
+        <button data-id="{{this._id}}" class="btn deleteBtn" style="background:#e03b3b">Eliminar</button>
+        <a href="/products/{{this._id}}" class="small" style="margin-left:8px;">Ver</a>
+      </div>
+    </li>
+  {{/each}}
+</ul>
+
+<div style="margin-top:12px;">
+  {{#if pagination.hasPrevPage}}
+    <a href="{{pagination.prevLink}}" class="small">Prev</a>
+  {{/if}}
+  <span class="small"> Página {{pagination.page}} de {{pagination.totalPages}}</span>
+  {{#if pagination.hasNextPage}}
+    <a href="{{pagination.nextLink}}" class="small">Next</a>
+  {{/if}}
+</div>
+
+<script>
+ 
+  document.getElementById('createProductForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const body = Object.fromEntries(new FormData(form));
+    body.price = Number(body.price || 0);
+    body.stock = Number(body.stock || 0);
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      alert('Producto creado');
+      window.location.reload();
+    } else {
+      const err = await res.json();
+      alert('Error: ' + (err.error || JSON.stringify(err)));
+    }
+  });
+
+  
+  document.getElementById('searchForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = document.getElementById('q').value.trim();
+    const params = new URLSearchParams(window.location.search);
+    if (q) params.set('q', q); else params.delete('q');
+    params.set('page', 1);
+    window.location.search = params.toString();
+  });
+
+  document.getElementById('clearSearch').addEventListener('click', () => {
+    const params = new URLSearchParams(window.location.search);
+    params.delete('q');
+    params.set('page', 1);
+    window.location.search = params.toString();
+  });
+
+  
+  document.addEventListener('click', async (e) => {
+    if (e.target.matches('.deleteBtn')) {
+      if (!confirm('Eliminar producto?')) return;
+      const pid = e.target.dataset.id;
+      const res = await fetch('/api/products/' + pid, { method: 'DELETE' });
+      if (res.ok) {
+        alert('Eliminado');
+        window.location.reload();
+      } else {
+        const err = await res.json();
+        alert('Error: ' + (err.error || JSON.stringify(err)));
+      }
+    }
+  });
+</script>

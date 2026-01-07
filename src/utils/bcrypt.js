@@ -1,5 +1,5 @@
-const bcrypt = require('bcrypt');
 
+const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 10;
 
 async function hashPassword(plainPassword) {

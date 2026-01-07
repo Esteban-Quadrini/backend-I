@@ -1,14 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Home - Productos</title>
-</head>
-<body>
-  <h1>Lista de productos</h1>
-  <ul>
-    {{#each products}}
-      <li>{{this.title}} - ${{this.price}}</li>
-    {{/each}}
-  </ul>
-</body>
-</html>
+
+<div class="dashboard">
+  <h2 class="dash-title">Panel de control</h2>
+
+  <div class="cards">
+    <a class="card" href="/health" target="_blank" rel="noopener">
+      <div class="card-icon">🩺</div>
+      <div class="card-body">
+        <div class="card-title">Health</div>
+        <div class="card-sub">Estado de la aplicación</div>
+        <div class="card-link">/health</div>
+      </div>
+    </a>
+
+    <a class="card" href="/api/products" target="_blank" rel="noopener">
+      <div class="card-icon">📦</div>
+      <div class="card-body">
+        <div class="card-title">API Productos</div>
+        <div class="card-sub">Listar / Crear / Eliminar</div>
+        <div class="card-link">/api/products</div>
+      </div>
+    </a>
+
+    <a class="card" href="/products" target="_self">
+      <div class="card-icon">🛍️</div>
+      <div class="card-body">
+        <div class="card-title">UI Productos</div>
+        <div class="card-sub">Interfaz de usuario</div>
+        <div class="card-link">/products</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="help">
+    <p>Consejo: abrí los enlaces en pestañas nuevas para probar la API y la UI simultáneamente.</p>
+  </div>
+</div>

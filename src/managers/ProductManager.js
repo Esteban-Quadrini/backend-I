@@ -1,46 +1,40 @@
 
-const fs = require('fs');
+const Product = require('../models/Product.model');
 
 class ProductManager {
-  constructor(path) {
-    this.path = path;
-  }
-
-  async getAll() {
-    try {
-      const data = await fs.promises.readFile(this.path, 'utf-8');
-      return JSON.parse(data);
-    } catch (error) {
-      return [];
-    }
-  }
-
-  async saveAll(products) {
-    await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
-  }
-
   async add(product) {
-    const products = await this.getAll();
-
-    // Generar ID único
-    const newId = products.length > 0 
-      ? (parseInt(products[products.length - 1].id) + 1).toString()
-      : "1001";
-
-    const newProduct = {
-      id: newId,
-      ...product
-    };
-
-    products.push(newProduct);
-    await this.saveAll(products);
-    return newProduct;
+    const doc = await Product.create(product);
+    return doc.toObject();
   }
 
-  async delete(pid) {
-    let products = await this.getAll();
-    products = products.filter(p => p.id !== pid);
-    await this.saveAll(products);
+  async getAll(filter = {}, options = {}) {
+    const limit = options.limit || 10;
+    const page = options.page || 1;
+    const sort = options.sort || null;
+
+    const query = Product.find(filter);
+    if (sort) query.sort(sort);
+    const total = await Product.countDocuments(filter);
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const skip = (page - 1) * limit;
+    query.skip(skip).limit(limit);
+
+    const docs = await query.lean().exec();
+    return { docs, total, totalPages, page, limit };
+  }
+
+  async getById(id) {
+    return Product.findById(id).lean();
+  }
+
+  async update(id, changes) {
+    const updated = await Product.findByIdAndUpdate(id, changes, { new: true, runValidators: true }).lean();
+    return updated;
+  }
+
+  async delete(id) {
+    const res = await Product.findByIdAndDelete(id);
+    return !!res;
   }
 }
 

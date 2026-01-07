@@ -1,60 +1,103 @@
+
 const express = require('express');
 const ProductManager = require('../managers/ProductManager');
+const broadcaster = require('../utils/broadcast');
 const router = express.Router();
-const pm = new ProductManager('src/data/products.json');
+const pm = new ProductManager();
 
-// Listar productos (opcional query ?limit=)
+
 router.get('/', async (req, res) => {
   try {
-    const { limit } = req.query;
-    const products = await pm.getAll();
-    if (limit) return res.json(products.slice(0, Number(limit)));
-    res.json(products);
+    const limit = Number(req.query.limit) || 10;
+    const page = Number(req.query.page) || 1;
+    const sortParam = req.query.sort;
+    const q = req.query.q; 
+
+    const filter = {};
+    if (q) {
+      const regex = new RegExp(q, 'i');
+      filter.$or = [{ title: regex }, { category: regex }, { code: regex }];
+    }
+
+    let sort = null;
+    if (sortParam === 'asc') sort = { price: 1 };
+    else if (sortParam === 'desc') sort = { price: -1 };
+
+    const result = await pm.getAll(filter, { limit, page, sort });
+
+    const totalPages = result.totalPages;
+    const hasPrevPage = page > 1;
+    const hasNextPage = page < totalPages;
+    const prevPage = hasPrevPage ? page - 1 : null;
+    const nextPage = hasNextPage ? page + 1 : null;
+
+    res.json({
+      status: 'success',
+      payload: result.docs,
+      totalPages,
+      prevPage,
+      nextPage,
+      page,
+      hasPrevPage,
+      hasNextPage
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status: 'error', error: err.message });
   }
 });
 
-// Obtener producto por id
+
 router.get('/:pid', async (req, res) => {
   try {
     const product = await pm.getById(req.params.pid);
-    if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
-    res.json(product);
+    if (!product) return res.status(404).json({ status: 'error', error: 'Producto no encontrado' });
+    res.json({ status: 'success', payload: product });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status: 'error', error: err.message });
   }
 });
 
-// Crear producto (id autogenerado)
+
 router.post('/', async (req, res) => {
   try {
+    const { title, code, price } = req.body;
+    if (!title || !code || price === undefined) {
+      return res.status(400).json({ status: 'error', error: 'title, code y price son obligatorios' });
+    }
     const created = await pm.add(req.body);
-    res.status(201).json(created);
+    const all = await pm.getAll({}, { limit: 10, page: 1 });
+    broadcaster.emitProducts(all.docs);
+    res.status(201).json({ status: 'success', payload: created });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    
+    if (err.code === 11000) return res.status(409).json({ status: 'error', error: 'El code ya existe' });
+    res.status(400).json({ status: 'error', error: err.message });
   }
 });
 
-// Actualizar producto (no modificar id)
+
 router.put('/:pid', async (req, res) => {
   try {
     const updated = await pm.update(req.params.pid, req.body);
-    if (!updated) return res.status(404).json({ error: 'Producto no encontrado' });
-    res.json(updated);
+    if (!updated) return res.status(404).json({ status: 'error', error: 'Producto no encontrado' });
+    const all = await pm.getAll({}, { limit: 10, page: 1 });
+    broadcaster.emitProducts(all.docs);
+    res.json({ status: 'success', payload: updated });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ status: 'error', error: err.message });
   }
 });
 
-// Eliminar producto
+
 router.delete('/:pid', async (req, res) => {
   try {
     const removed = await pm.delete(req.params.pid);
-    if (!removed) return res.status(404).json({ error: 'Producto no encontrado' });
-    res.json({ success: true });
+    if (!removed) return res.status(404).json({ status: 'error', error: 'Producto no encontrado' });
+    const all = await pm.getAll({}, { limit: 10, page: 1 });
+    broadcaster.emitProducts(all.docs);
+    res.json({ status: 'success', payload: { removed: true } });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status: 'error', error: err.message });
   }
 });
 

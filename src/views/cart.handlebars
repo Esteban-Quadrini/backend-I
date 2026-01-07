@@ -1,0 +1,24 @@
+<div class="card">
+  <h2>Carrito {{cart._id}}</h2>
+  <ul>
+    {{#each cart.products}}
+      <li>
+        {{#if this.product}}
+          {{this.product.title}} - ${{this.product.price}} - Cant: {{this.quantity}}
+        {{else}}
+          Producto eliminado (id: {{this.product}})
+        {{/if}}
+      </li>
+    {{/each}}
+  </ul>
+  <button id="clear" class="btn">Vaciar carrito</button>
+</div>
+
+<script>
+  document.getElementById('clear').addEventListener('click', async () => {
+    const cid = '{{cart._id}}';
+    const res = await fetch(`/api/carts/${cid}`, { method: 'DELETE' });
+    if (res.ok) location.reload();
+    else alert('Error al vaciar');
+  });
+</script>

@@ -1,0 +1,73 @@
+
+
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  margin: 0;
+  padding: 0;
+  background: #f6f8fa;
+  color: #222;
+}
+.container {
+  max-width: 1000px;
+  margin: 32px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(20,20,30,0.06);
+}
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom: 16px;
+}
+.header h1 { margin: 0; font-size: 1.6rem; color:#0b5cff; }
+.product-list { list-style: none; padding: 0; margin: 0; display:grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 12px; }
+.card {
+  border: 1px solid #e6e9ef;
+  padding: 12px;
+  border-radius: 8px;
+  background: linear-gradient(180deg,#fff,#fbfdff);
+}
+.card h3 { margin: 0 0 8px 0; font-size: 1.05rem; }
+.card p { margin: 0 0 8px 0; color:#555; font-size:0.95rem; }
+.btn {
+  display:inline-block;
+  padding:8px 12px;
+  background:#0b5cff;
+  color:#fff;
+  border-radius:6px;
+  text-decoration:none;
+  border:none;
+  cursor:pointer;
+}
+.controls { display:flex; gap:8px; margin-bottom:12px; align-items:center; }
+.small { font-size:0.9rem; color:#666; }
+.footer { margin-top:18px; font-size:0.9rem; color:#666; text-align:center; }
+
+.dashboard { padding: 24px; }
+.dash-title { margin: 0 0 16px 0; color:#0b5cff; font-size:1.4rem; }
+.cards { display:flex; gap:16px; flex-wrap:wrap; }
+.card {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:280px;
+  padding:14px;
+  border-radius:10px;
+  background: linear-gradient(180deg,#ffffff,#fbfdff);
+  border:1px solid #e6e9ef;
+  text-decoration:none;
+  color:inherit;
+  box-shadow: 0 6px 18px rgba(20,20,30,0.06);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(20,20,30,0.12); }
+.card-icon { font-size:1.8rem; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:#f0f6ff; }
+.card-body { display:flex; flex-direction:column; }
+.card-title { font-weight:700; color:#0b5cff; }
+.card-sub { font-size:0.9rem; color:#666; margin-top:4px; }
+.card-link { margin-top:8px; font-size:0.85rem; color:#0b5cff; opacity:0.9; }
+
+
+.help { margin-top:18px; color:#666; font-size:0.95rem; }
